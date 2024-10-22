@@ -5,10 +5,9 @@ log nginx stats
 
 '''
 from pymongo import MongoClient
-from pymongo.collection import Collection
 
 
-def nginx_stats(logs: Collection):
+def nginx_stats(logs):
     '''prints stats of nginx logs in mongo db'''
     print(f'{logs.count_documents({})} logs')
     print('Methods:')
