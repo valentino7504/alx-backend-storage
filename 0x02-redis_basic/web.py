@@ -17,7 +17,7 @@ cache.flushdb()
 def cache_responses(fn: Callable) -> Callable:
     '''implements a response count'''
     @wraps(fn)
-    def data_cacher(url):
+    def data_cacher(url: str) -> str:
         '''wrapper for get_page'''
         res_key = f'cached:{url}'
         count_key = f'count:{url}'
