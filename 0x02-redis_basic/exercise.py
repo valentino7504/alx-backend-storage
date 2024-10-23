@@ -4,6 +4,7 @@
 0 - Writing strings to Redis
 
 '''
+from __future__ import annotations
 import redis
 from typing import Union, Callable, Any
 from uuid import uuid4
@@ -13,13 +14,29 @@ from functools import wraps
 def count_calls(method: Callable) -> Callable:
     '''implements a function call counter'''
     @wraps(method)
-    def counter(self, *args, **kwargs) -> Any:
+    def counter(self: Cache, *args, **kwargs) -> Any:
         '''invokes the method'''
         key = method.__qualname__
         if isinstance(self._redis, redis.Redis):
             self._redis.incr(key)
         return method(self, *args, **kwargs)
     return counter
+
+
+def call_history(method: Callable) -> Callable:
+    '''implements a function call history'''
+    @wraps(method)
+    def history(self: Cache, *args, **kwargs) -> Any:
+        '''invokes the history'''
+        method_name = method.__qualname__
+        in_key = f'{method_name}:inputs'
+        out_key = f'{method_name}:outputs'
+        inputs = str(args)
+        outputs = method(self, *args, **kwargs)
+        self._redis.rpush(in_key, inputs)
+        self._redis.rpush(out_key, outputs)
+        return outputs
+    return history
 
 
 class Cache:
@@ -29,6 +46,7 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb()
 
+    @call_history
     @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         '''stores a value in the Redis db using a random uuid4 as key'''
