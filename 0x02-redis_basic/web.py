@@ -13,6 +13,7 @@ from typing import Callable
 cache = redis.Redis()
 cache.flushdb()
 
+
 def cache_responses(fn: Callable) -> Callable:
     '''implements a response count'''
     @wraps(fn)
