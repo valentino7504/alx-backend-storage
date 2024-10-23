@@ -19,15 +19,14 @@ def cache_responses(fn: Callable) -> Callable:
     @wraps(fn)
     def data_cacher(url):
         '''wrapper for get_page'''
-        res_key = f'result:{url}'
+        res_key = f'cached:{url}'
         count_key = f'count:{url}'
-        html_content = cache.get(res_key).decode('utf-8')
+        html_content = cache.get(res_key)
         cache.incr(count_key)
         if html_content:
-            return html_content
+            return html_content.decode('utf-8')
         res = fn(url)
-        cache.set(count_key, 0)
-        cache.set(res_key, ex=10, value=res)
+        cache.set(res_key, res, 10)
         return res
     return data_cacher
 
