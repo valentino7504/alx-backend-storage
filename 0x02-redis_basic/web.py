@@ -26,7 +26,7 @@ def cache_responses(fn: Callable) -> Callable:
         if html_content:
             return html_content.decode('utf-8')
         res = fn(url)
-        cache.set(res_key, res, 10)
+        cache.setex(res_key, 10, res)
         return res
     return data_cacher
 
