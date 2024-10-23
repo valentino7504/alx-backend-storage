@@ -11,7 +11,7 @@ from typing import Callable
 
 
 cache = redis.Redis()
-
+cache.flushdb()
 
 def cache_responses(fn: Callable) -> Callable:
     '''implements a response count'''
@@ -22,7 +22,6 @@ def cache_responses(fn: Callable) -> Callable:
         cache.incr(count_key)
         res = fn(url)
         cache.set(f'result:{url}', ex=10, value=res)
-        cache.set(count_key, 0)
         return res
     return data_cacher
 
