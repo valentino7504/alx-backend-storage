@@ -24,6 +24,8 @@ class Cache:
 
     def get(self, key: str, fn: Callable) -> Union[str, bytes, int, float]:
         '''gets information from redis database and formats it'''
+        if not key:
+            return None
         data = self._redis.get(key)
         if fn and data:
             return fn(data)
@@ -32,8 +34,12 @@ class Cache:
 
     def get_str(self, key: str) -> str:
         '''parameterizes get with str method'''
+        if not key:
+            return None
         return self.get(key, lambda v: v.decode('utf-8'))
 
     def get_int(self, key: str) -> int:
         '''parameterizes get with int method'''
+        if not key:
+            return None
         return self.get(key, int)
