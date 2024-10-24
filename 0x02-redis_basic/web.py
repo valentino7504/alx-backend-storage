@@ -19,18 +19,17 @@ def cache_responses(fn: Callable) -> Callable:
     @wraps(fn)
     def data_cacher(url: str) -> str:
         '''wrapper for get_page'''
-        count_key = f'count:{url}'
         html_content = cache.get(url)
         if html_content:
             return html_content.decode('utf-8')
-        res = fn(url)
-        cache.incr(count_key)
-        cache.setex(url, 10, res)
-        return res
+        return fn(url)
     return data_cacher
 
 
 @cache_responses
 def get_page(url: str) -> str:
     '''expiring web cache'''
-    return requests.get(url).text
+    response = requests.get(url).text
+    cache.incr(f'count:{url}')
+    cache.setex(url, 10, response)
+    return response
